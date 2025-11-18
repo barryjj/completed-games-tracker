@@ -1,0 +1,17 @@
+{
+  "name": "completed-games-tracker-electron",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/main.js",
+  "type": "commonjs",
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development VITE_DEV_SERVER=http://localhost:5173 electron .",
+    "start": "cross-env NODE_ENV=production electron ."
+  },
+  "devDependencies": {
+    "@types/node": "^20.5.1",
+    "cross-env": "^10.1.0",
+    "electron": "^39.2.1",
+    "typescript": "^5.0.0"
+  }
+}

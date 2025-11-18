@@ -1,0 +1,26 @@
+# macOS junk
+.DS_Store
+
+# Dependencies
+node_modules/
+
+# Build outputs (Vite & Electron)
+dist/
+out/
+release/
+
+# Electron artifacts
+*.asar
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor folders
+.vscode/
+.idea/
+
+# Temporary files
+*.swp

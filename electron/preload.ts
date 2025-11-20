@@ -1,8 +1,6 @@
-import { contextBridge, ipcRenderer } from 'electron';
+import { contextBridge, ipcRenderer } from "electron";
 
-contextBridge.exposeInMainWorld('electron', {
-  send: (channel: string, data: any) => ipcRenderer.send(channel, data),
-  receive: (channel: string, func: (data: any) => void) => {
-    ipcRenderer.on(channel, (event, ...args) => func(args));
-  },
+contextBridge.exposeInMainWorld("api", {
+  loadApiKey: (): Promise<string | null> => ipcRenderer.invoke("load-api-key"),
+  saveApiKey: (key: string): Promise<boolean> => ipcRenderer.invoke("save-api-key", key),
 });

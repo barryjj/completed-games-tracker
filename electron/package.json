@@ -1,5 +1,6 @@
 {
-  "name": "completed-games-tracker-electron",
+  "name": "completed-games-tracker",
+  "productName": "Completed Games Tracker",
   "version": "1.0.0",
   "private": true,
   "main": "dist/main.js",
@@ -13,5 +14,8 @@
     "cross-env": "^10.1.0",
     "electron": "^39.2.1",
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.10.0"
   }
 }

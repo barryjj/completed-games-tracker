@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+/* =============================
+   Catppuccin Mocha Theme Colors
+   Tailwind CSS v4 / CSS-first
+============================= */
+@theme {
+  /* Fonts */
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'Fira Code', monospace;
+}

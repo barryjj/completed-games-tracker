@@ -12,10 +12,10 @@
   "devDependencies": {
     "@types/node": "^20.5.1",
     "cross-env": "^10.1.0",
-    "electron": "^39.2.1",
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "better-sqlite3": "^11.10.0"
+    "better-sqlite3": "^9.5.0",
+    "electron": "^30.5.1"
   }
 }

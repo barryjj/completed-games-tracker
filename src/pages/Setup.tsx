@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 
 /**
- * Local TS declaration; keep in sync with src/types/api.d.ts if you prefer globally.
- * window.api may be undefined when running the Vite dev server in a normal browser.
+ * Local TS declaration for preload IPC
  */
 declare global {
   interface Window {
@@ -15,113 +14,113 @@ declare global {
 
 export default function Setup() {
   const [apiKey, setApiKey] = useState<string>("");
-  const [status, setStatus] = useState<string>("");
+  const [toast, setToast] = useState<{ type: string; msg: string } | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     let alive = true;
+
     (async () => {
       try {
-        if (window.api && window.api.loadApiKey) {
+        if (window.api?.loadApiKey) {
           const k = await window.api.loadApiKey();
           if (!alive) return;
           if (k) setApiKey(k);
-        } else {
-          // no preload available (running in plain vite/browser)
-          console.info("window.api not available (running in browser).");
         }
-      } catch (err) {
-        console.error("Error loading API key:", err);
       } finally {
         if (alive) setLoading(false);
       }
     })();
-    return () => {
-      alive = false;
-    };
+
+    return () => { alive = false; };
   }, []);
 
-  const saveKey = async () => {
-    try {
-      if (window.api && window.api.saveApiKey) {
-        const ok = await window.api.saveApiKey(apiKey);
-        if (ok) {
-          setStatus("Saved");
-          setTimeout(() => setStatus(""), 1400);
-        } else {
-          setStatus("Save failed");
-          setTimeout(() => setStatus(""), 2000);
-        }
-      } else {
-        // fallback: not available in browser dev
-        console.warn("saveApiKey not available (running in browser).");
-        setStatus("Save unavailable in browser");
-        setTimeout(() => setStatus(""), 1600);
-      }
-    } catch (err) {
-      console.error("Error saving API key:", err);
-      setStatus("Save error");
-      setTimeout(() => setStatus(""), 2000);
-    }
+  const showToast = (type: "success" | "error" | "warning", msg: string) => {
+    setToast({ type, msg });
+    setTimeout(() => setToast(null), 2000);
   };
 
-  const handleSteamLogin = () => {
-    // placeholder -> will open OIDC child window later via ipc if you want
-    console.log("Open Steam Login Window (TODO)");
+  const saveKey = async () => {
+    if (!window.api?.saveApiKey) {
+      showToast("error", "Not available in browser");
+      return;
+    }
+
+    const ok = await window.api.saveApiKey(apiKey);
+
+    if (apiKey.trim() === "") {
+      showToast("warning", "API key removed — Steam integration disabled");
+      return;
+    }
+
+    if (ok) showToast("success", "API key saved");
+    else showToast("error", "Failed to save key");
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center p-6">
-      <div className="bg-gray-800 shadow-2xl rounded-2xl p-8 w-full max-w-md space-y-6">
-        <h1 className="text-2xl font-bold text-gray-100 border-b border-gray-700 pb-2">
+    <div className="min-h-screen flex items-center justify-center p-6">
+      <div className="bg-surface1 p-8 rounded-2xl shadow-2xl w-full max-w-md space-y-6 border border-surface2">
+
+        <h1 className="text-2xl font-bold text-text border-b border-overlay0 pb-2">
           Initial Setup
         </h1>
 
         {loading ? (
-          <div className="text-gray-300">Loading...</div>
+          <div className="text-subtext1">Loading…</div>
         ) : (
           <>
             <div className="space-y-3">
-              <label className="block text-gray-300 font-medium">Steam API Key</label>
+
+              <label className="block text-subtext1 font-medium">
+                Steam API Key
+              </label>
+
               <input
                 type="text"
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
-                placeholder="Enter your Steam API Key..."
-                className="w-full px-4 py-2 rounded-lg border border-gray-600 bg-gray-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Enter your Steam API Key…"
+                className="ct-input focus:ct-input-focus w-full"
               />
 
               <button
                 onClick={saveKey}
-                className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-500 active:scale-95 transition transform"
-                aria-label="Save Steam API Key"
+                className="muted-btn hover:muted-btn-hover active:muted-btn-active w-full text-center"
               >
                 Save API Key
               </button>
-
-              {status && <div className="text-green-400">{status}</div>}
             </div>
 
-            <hr className="border-t border-gray-700 my-4" />
+            <hr className="border-overlay0 my-4" />
 
             <button
-              onClick={handleSteamLogin}
-              className="w-full flex items-center justify-center gap-3 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-500 active:scale-95 transition transform"
-              aria-label="Sign in with Steam"
+              onClick={() => console.log("TODO: Steam login")}
+              className="muted-btn hover:muted-btn-hover active:muted-btn-active w-full flex items-center justify-center gap-3"
             >
               <img
-                src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Steam_icon_logo.svg/1024px-Steam_icon_logo.svg.png?20220611141426"
+                src="https://upload.wikimedia.org/wikipedia/commons/8/83/Steam_icon_logo.svg"
                 alt="Steam"
-                className="w-10 h-10 object-contain"
+                className="w-8 h-8 object-contain"
               />
-              <span className="text-left">
-                <div className="text-sm opacity-90">Sign in through</div>
-                <div className="text-lg font-bold">STEAM</div>
-              </span>
+              <span className="font-bold">Sign in with Steam</span>
             </button>
           </>
         )}
       </div>
+
+      {/* Toast */}
+      {toast && (
+        <div
+          className={`
+            toast-box fixed top-4 right-4
+            ${toast.type === "success" ? "toast-success" : ""}
+            ${toast.type === "error" ? "toast-error" : ""}
+            ${toast.type === "warning" ? "toast-warning" : ""}
+          `}
+        >
+          {toast.msg}
+        </div>
+      )}
     </div>
   );
 }

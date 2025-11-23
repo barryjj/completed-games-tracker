@@ -18,5 +18,5 @@
     "types": ["vite/client"],
     "incremental": false
   },
-  "include": ["src","electron"]
+  "include": ["src", "electron", "eslint.config.js"]
 }

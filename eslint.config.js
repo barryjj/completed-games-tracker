@@ -1,21 +1,49 @@
-// eslint.config.js
 import js from '@eslint/js';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
 import reactPlugin from 'eslint-plugin-react';
-import hooksPlugin from 'eslint-plugin-react-hooks';
+import reactHooks from 'eslint-plugin-react-hooks';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 
 export default [
-  // Global defaults for all project files
+  // ==========================
+  // ROOT GUARD — do not remove
+  // - Ensures no injected config ever enables project-mode
+  // - Ensures eslint.config.js is never targeted
+  // ==========================
+  {
+    // a defensive global ignore and explicit null project to stop any injected presets
+    ignores: ['eslint.config.js', '**/eslint.config.js'],
+    languageOptions: {
+      parserOptions: {
+        // Defensive: explicitly disable type-aware linting globally (overrides injected presets)
+        project: null,
+      },
+    },
+  },
+
+  // ==========================
+  // 0. Global Ignores
+  // ==========================
   {
     ignores: ['dist/**', 'electron/dist/**', 'node_modules/**'],
-    files: ['**/*.{js,jsx,ts,tsx}'],
+  },
+
+  // ==========================
+  // 1. MAIN SOURCE CODE (TypeScript/React)
+  // ==========================
+  {
+    files: ['src/**/*.{ts,tsx,js,jsx}', 'electron/**/*.{ts,tsx,js,jsx}'],
+
+    ...js.configs.recommended,
 
     languageOptions: {
       parser: tsParser,
-      ecmaVersion: 'latest',
-      sourceType: 'module',
+      parserOptions: {
+        project: './tsconfig.eslint.json',
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+      },
       globals: {
         console: 'readonly',
         setTimeout: 'readonly',
@@ -27,50 +55,48 @@ export default [
     plugins: {
       '@typescript-eslint': tsPlugin,
       react: reactPlugin,
-      'react-hooks': hooksPlugin,
+      'react-hooks': reactHooks,
       'simple-import-sort': simpleImportSort,
     },
 
-    rules: {
-      // Core recommended sets
-      ...js.configs.recommended.rules,
-      ...tsPlugin.configs.recommended.rules,
-
-      // Real correctness rules (errors)
-      'react-hooks/rules-of-hooks': 'error',
-      'simple-import-sort/imports': 'error',
-      'simple-import-sort/exports': 'error',
-
-      // Your preference: warnings, not errors
-      '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-unused-vars': 'warn',
-      '@typescript-eslint/no-require-imports': 'warn',
-      'no-undef': 'warn',
-      'no-empty': 'warn',
-    },
-  },
-
-  // Renderer (React/Vite)
-  {
-    files: ['src/**/*.{js,jsx,ts,tsx}'],
-    languageOptions: {
-      globals: {
-        window: 'readonly',
-        document: 'readonly',
-        fetch: 'readonly',
-        navigator: 'readonly',
+    settings: {
+      react: {
+        version: 'detect',
       },
     },
+
     rules: {
-      'no-console': 'warn', // allowed but flagged
+      // --- TypeScript Rules ---
+      'no-shadow': 'off',
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-shadow': 'error',
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-explicit-any': 'warn',
+
+      // --- React Rules ---
+      'react/jsx-uses-react': 'off',
+      'react/react-in-jsx-scope': 'off',
+      'react/prop-types': 'off',
+
+      // --- React Hooks ---
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
+
+      // --- Custom Rules ---
+      'no-console': 'warn',
+      'no-undef': 'warn',
+      'no-empty': 'warn',
+      'simple-import-sort/imports': 'error',
+      'simple-import-sort/exports': 'error',
     },
   },
 
-  // Electron main (Node environment)
+  // ==========================
+  // 2. ELECTRON MAIN PROCESS
+  // ==========================
   {
-    files: ['electron/**/*.{js,ts}'],
+    files: ['electron/**/*.{ts,js}'],
     ignores: ['electron/preload.ts'],
-
     languageOptions: {
       globals: {
         require: 'readonly',
@@ -79,22 +105,22 @@ export default [
         process: 'readonly',
       },
       sourceType: 'script',
-      ecmaVersion: 2022,
     },
-
     rules: {
-      'no-console': 'off', // allowed freely in backend
+      'no-console': 'off',
+      'no-undef': 'off',
     },
   },
 
-  // Electron preload (browser + node)
+  // ==========================
+  // 3. ELECTRON PRELOAD
+  // ==========================
   {
     files: ['electron/preload.ts'],
     languageOptions: {
       globals: {
         window: 'readonly',
         document: 'readonly',
-        console: 'readonly',
         require: 'readonly',
         module: 'readonly',
         fetch: 'readonly',

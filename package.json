@@ -2,12 +2,26 @@
   "name": "completed-games-tracker",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vite --port 5173",
     "electron:compile": "tsc -p electron/tsconfig.json",
     "electron": "npm --prefix electron run dev",
     "dev:all": "concurrently \"npm run dev\" \"npm run electron:compile && npm run electron\"",
-    "build": "rm -rf electron/dist && vite build && tsc -p electron && npm --prefix electron run start"
+    "build": "rm -rf electron/dist && vite build && tsc -p electron && npm --prefix electron run start",
+    "prepare": "husky install",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "lint": "eslint \"src/**/*.{ts,tsx,js,jsx}\" --fix"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{css,scss,md,json,html}": [
+      "prettier --write"
+    ],
+    "!package-lock.json": []
   },
   "dependencies": {
     "react": "^18.3.1",
@@ -18,10 +32,19 @@
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.6",
     "@types/react-dom": "^19.2.3",
+    "@typescript-eslint/eslint-plugin": "^8.47.0",
+    "@typescript-eslint/parser": "^8.47.0",
     "@vitejs/plugin-react": "^4.0.0",
     "autoprefixer": "^10.4.22",
     "concurrently": "^9.2.1",
+    "eslint": "^9.39.1",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "husky": "^8.0.0",
+    "lint-staged": "^16.2.7",
     "postcss": "^8.5.6",
+    "prettier": "^3.6.2",
     "tailwindcss": "^4.1.17",
     "typescript": "^5.2.2",
     "vite": "^7.2.2"

@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
+
+import Toast from '../components/ui/Toast';
 
 /**
  * Local TS declaration for preload IPC
@@ -19,7 +21,7 @@ declare global {
 }
 
 export default function Setup() {
-  const [apiKey, setApiKey] = useState<string>("");
+  const [apiKey, setApiKey] = useState<string>('');
   const [toast, setToast] = useState<{ type: string; msg: string } | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [currentUser, setCurrentUser] = useState<any | null>(null);
@@ -49,22 +51,22 @@ export default function Setup() {
           if (user) setCurrentUser(user);
         }
       } catch (err) {
-        console.error("Error loading user on setup mount:", err);
+        console.error('Error loading user on setup mount:', err);
       }
     })();
 
     // Listen for steam-user-updated events
     try {
       window.api?.onSteamUserUpdated(async (data: any) => {
-        console.log("Renderer got steam-user-updated:", data);
+        console.log('Renderer got steam-user-updated:', data);
         if (!data || !data.success) {
-          const errMsg = data?.error ?? "Unknown error";
-          setToast({ type: "error", msg: `Steam login failed: ${errMsg}` });
+          const errMsg = data?.error ?? 'Unknown error';
+          setToast({ type: 'error', msg: `Steam login failed: ${errMsg}` });
           return;
         }
         const steam_id64 = data.steam_id64;
         if (!steam_id64) {
-          setToast({ type: "error", msg: "Steam login returned no ID" });
+          setToast({ type: 'error', msg: 'Steam login returned no ID' });
           return;
         }
 
@@ -73,69 +75,72 @@ export default function Setup() {
           if (user) {
             setCurrentUser(user);
           } else {
-            setToast({ type: "warning", msg: "Signed in but no stored user found" });
+            setToast({ type: 'warning', msg: 'Signed in but no stored user found' });
           }
         } catch (err) {
-          console.error("Error fetching user after login:", err);
-          setToast({ type: "error", msg: "Failed to load user data" });
+          console.error('Error fetching user after login:', err);
+          setToast({ type: 'error', msg: 'Failed to load user data' });
         }
       });
     } catch (err) {
-      console.error("Failed to register onSteamUserUpdated:", err);
+      console.error('Failed to register onSteamUserUpdated:', err);
     }
 
-    return () => { alive = false; };
+    return () => {
+      alive = false;
+    };
   }, []);
 
-  const showToast = (type: "success" | "error" | "warning", msg: string) => {
+  const showToast = (type: 'success' | 'error' | 'warning', msg: string) => {
     setToast({ type, msg });
     setTimeout(() => setToast(null), 2000);
   };
 
   const saveKey = async () => {
     if (!window.api?.saveApiKey) {
-      showToast("error", "Not available in browser");
+      showToast('error', 'Not available in browser');
       return;
     }
 
     const ok = await window.api.saveApiKey(apiKey);
 
-    if (apiKey.trim() === "") {
-      showToast("warning", "API key removed — Steam integration disabled");
+    if (apiKey.trim() === '') {
+      showToast('warning', 'API key removed — Steam integration disabled');
       return;
     }
 
-    if (ok) showToast("success", "API key saved");
-    else showToast("error", "Failed to save key");
+    if (ok) showToast('success', 'API key saved');
+    else showToast('error', 'Failed to save key');
   };
 
   const handleDeleteUser = async () => {
     if (!currentUser || !currentUser.user_id) {
-      showToast("error", "No user to delete");
+      showToast('error', 'No user to delete');
       return;
     }
 
     if (!window.api?.deleteUser) {
-      showToast("error", "Delete user not available");
+      showToast('error', 'Delete user not available');
       return;
     }
 
-    const confirmed = confirm(`Are you sure you want to delete user "${currentUser.persona_name}"?`);
+    const confirmed = confirm(
+      `Are you sure you want to delete user "${currentUser.persona_name}"?`,
+    );
     if (!confirmed) return;
 
     const ok = await window.api.deleteUser(currentUser.user_id);
     if (ok) {
       setCurrentUser(null);
-      showToast("success", "User deleted");
+      showToast('success', 'User deleted');
     } else {
-      showToast("error", "Failed to delete user");
+      showToast('error', 'Failed to delete user');
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
       <div className="bg-surface1 p-8 rounded-2xl shadow-2xl w-full max-w-md space-y-6 border border-surface2">
-
         <h1 className="text-2xl font-bold text-text border-b border-overlay0 pb-2">
           Initial Setup
         </h1>
@@ -145,9 +150,7 @@ export default function Setup() {
         ) : (
           <>
             <div className="space-y-3">
-              <label className="block text-subtext1 font-medium">
-                Steam API Key
-              </label>
+              <label className="block text-subtext1 font-medium">Steam API Key</label>
 
               <input
                 type="text"
@@ -171,15 +174,15 @@ export default function Setup() {
               <button
                 onClick={async () => {
                   if (!window.api?.openSteamLogin) {
-                    showToast("error", "Steam login not available");
+                    showToast('error', 'Steam login not available');
                     return;
                   }
                   try {
                     const ok = await window.api.openSteamLogin();
-                    if (!ok) showToast("warning", "Steam login cancelled or failed");
+                    if (!ok) showToast('warning', 'Steam login cancelled or failed');
                   } catch (err) {
-                    console.error("Steam login error:", err);
-                    showToast("error", "Failed to open Steam login");
+                    console.error('Steam login error:', err);
+                    showToast('error', 'Failed to open Steam login');
                   }
                 }}
                 className="muted-btn hover:muted-btn-hover active:muted-btn-active w-full flex items-center justify-center gap-3"
@@ -213,10 +216,11 @@ export default function Setup() {
                         if (window.api?.openExternalBrowser) {
                           await window.api.openExternalBrowser(currentUser.profile_url);
                         } else {
-                          console.error("openExternalBrowser not available on window.api");
+                          console.error('openExternalBrowser not available on window.api');
                         }
                       }}
-                      className="text-sm text-(--ctp-lavender) hover:opacity-80 font-medium mt-1 cursor-pointer">
+                      className="text-sm text-(--ctp-lavender) hover:opacity-80 font-medium mt-1 cursor-pointer"
+                    >
                       View Profile
                     </a>
                   </div>
@@ -235,16 +239,11 @@ export default function Setup() {
 
       {/* Toast */}
       {toast && (
-        <div
-          className={`
-            toast-box fixed top-4 right-4
-            ${toast.type === "success" ? "toast-success" : ""}
-            ${toast.type === "error" ? "toast-error" : ""}
-            ${toast.type === "warning" ? "toast-warning" : ""}
-          `}
-        >
-          {toast.msg}
-        </div>
+        <Toast
+          message={toast.msg}
+          type={toast.type as 'success' | 'error' | 'warning'}
+          width="w-full max-w-md"
+        />
       )}
     </div>
   );

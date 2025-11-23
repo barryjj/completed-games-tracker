@@ -1,6 +1,6 @@
 import { BrowserWindow, ipcMain } from 'electron';
 
-import { deleteUser, getStoredApiKey, getUserBySteamId } from './db';
+import { deleteUser, getStoredApiKey, getUserBySteamId } from './database';
 import { openSteamLoginWindow } from './steamLogin';
 
 /**

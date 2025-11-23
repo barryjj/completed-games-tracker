@@ -1,6 +1,6 @@
 import { BrowserWindow } from 'electron';
 
-import { getStoredApiKey, upsertUser } from './db';
+import { getStoredApiKey, upsertUser } from './database';
 
 /**
  * Fetch Steam profile from API

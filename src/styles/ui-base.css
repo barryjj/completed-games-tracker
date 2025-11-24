@@ -1,0 +1,29 @@
+/* src/styles/ui-base.css */
+
+/* Inputs */
+.ct-input {
+  @apply w-full rounded-md border border-surface2 bg-surface1 px-3 py-2 text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400;
+}
+.ct-input-focus {
+  @apply ring-2 ring-blue-400;
+}
+
+/* Buttons */
+.btn-primary {
+  @apply bg-blue-500 text-white py-2 px-4 rounded-lg shadow hover:bg-blue-600 transition-all;
+}
+
+.muted-btn {
+  @apply bg-surface2 text-gray-300 py-2 px-4 rounded-lg hover:bg-surface1 transition-all;
+}
+.muted-btn-hover {
+  @apply hover:bg-surface1;
+}
+.muted-btn-active {
+  @apply active:bg-surface0;
+}
+
+/* Cards / panels */
+.card {
+  @apply bg-surface1 border border-surface2 rounded-xl p-6 shadow-lg;
+}

@@ -1,17 +1,12 @@
-import { BrowserWindow, ipcMain } from 'electron';
+import { ipcMain, shell } from 'electron';
 
-import { deleteUser, getStoredApiKey, getUserBySteamId } from './database';
-import { openSteamLoginWindow } from './steamLogin';
+import { db, deleteUser, getUser, getUserBySteamId } from './database';
 
-/**
- * Register IPC handlers
- */
 export function registerIpcHandlers() {
-  // Load/save API key
   ipcMain.handle('load-api-key', () => {
-    console.log('IPC load-api-key invoked');
     try {
-      return getStoredApiKey();
+      const row = db.prepare("SELECT value FROM settings WHERE key = 'steam_api_key'").get();
+      return row?.value ?? null;
     } catch (err) {
       console.error('load-api-key error:', err);
       return null;
@@ -19,11 +14,14 @@ export function registerIpcHandlers() {
   });
 
   ipcMain.handle('save-api-key', (_evt, key: string) => {
-    console.log('IPC save-api-key invoked');
     try {
-      const db = getStoredApiKey();
-      // Upsert
-      const stmt = `INSERT INTO settings (key,value) VALUES ('steam_api_key', ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value`;
+      db.prepare(
+        `
+        INSERT INTO settings (key, value)
+        VALUES ('steam_api_key', ?)
+        ON CONFLICT(key) DO UPDATE SET value = excluded.value
+      `,
+      ).run(key);
       return true;
     } catch (err) {
       console.error('save-api-key error:', err);
@@ -31,31 +29,26 @@ export function registerIpcHandlers() {
     }
   });
 
-  // Get user by SteamID
-  ipcMain.handle('get-user', (_evt, steamid64: string) => {
-    console.log('IPC get-user invoked for:', steamid64);
+  ipcMain.handle('get-user-by-steam-id', (_evt, steam_id64: string) => {
+    return getUserBySteamId(steam_id64);
+  });
+
+  ipcMain.handle('get-user', () => {
+    return getUser();
+  });
+
+  ipcMain.handle('delete-user', (_evt, user_id: number) => {
+    return deleteUser(user_id);
+  });
+
+  ipcMain.handle('open-external-browser', async (_event, url: string) => {
+    console.log('ipcHandlers: openExternalBrowser called for', url);
     try {
-      return getUserBySteamId(steamid64);
+      await shell.openExternal(url);
+      return true;
     } catch (err) {
-      console.error('get-user error:', err);
-      return null;
-    }
-  });
-
-  // Delete user
-  ipcMain.handle('delete-user', (_evt, userId: number) => {
-    console.log('IPC delete-user invoked for user_id:', userId);
-    return deleteUser(userId);
-  });
-
-  // Open Steam login
-  ipcMain.handle('open-steam-login', (_evt) => {
-    console.log('IPC open-steam-login invoked');
-    const mainWindow = BrowserWindow.getAllWindows()[0];
-    if (!mainWindow) {
-      console.warn('No main window available for Steam login');
+      console.error('Failed to open external URL:', err);
       return false;
     }
-    return openSteamLoginWindow(mainWindow);
   });
 }

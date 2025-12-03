@@ -1,29 +1,51 @@
-/* src/styles/ui-base.css */
+/* ===========================================================
+   UI Base Styles — Tailwind 4 / CSS-first compliant
+   Shared layout, cards, buttons, text inputs
+=========================================================== */
 
-/* Inputs */
-.ct-input {
-  @apply w-full rounded-md border border-surface2 bg-surface1 px-3 py-2 text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400;
-}
-.ct-input-focus {
-  @apply ring-2 ring-blue-400;
-}
-
-/* Buttons */
-.btn-primary {
-  @apply bg-blue-500 text-white py-2 px-4 rounded-lg shadow hover:bg-blue-600 transition-all;
+/* -------- Page Container (shared across Setup, Dashboard) -------- */
+.page-container {
+  @apply min-h-screen w-full p-6 bg-crust text-text flex flex-col gap-6;
 }
 
-.muted-btn {
-  @apply bg-surface2 text-gray-300 py-2 px-4 rounded-lg hover:bg-surface1 transition-all;
-}
-.muted-btn-hover {
-  @apply hover:bg-surface1;
-}
-.muted-btn-active {
-  @apply active:bg-surface0;
-}
-
-/* Cards / panels */
+/* -------- Card (shared panel container) -------- */
 .card {
-  @apply bg-surface1 border border-surface2 rounded-xl p-6 shadow-lg;
+  @apply bg-surface0 rounded-xl p-6 shadow-md border border-surface1;
+}
+
+/* -------- Section Titles -------- */
+.section-title {
+  @apply text-lg font-semibold text-text;
+}
+
+/* -------- Input Styles -------- */
+.input {
+  @apply w-full p-2 mt-1 rounded-md bg-surface1 text-text placeholder-text/50
+         border border-surface2 focus:outline-none focus:ring-2
+         focus:ring-lavender/70;
+}
+
+/* -------- Primary Button -------- */
+.btn-primary {
+  @apply px-4 py-2 rounded-md bg-lavender text-base font-medium
+         text-crust transition-all duration-150
+         hover:opacity-80 active:scale-95 cursor-pointer;
+}
+
+/* -------- Danger Button -------- */
+.btn-danger {
+  @apply px-4 py-2 rounded-md bg-red text-base font-medium
+         text-crust transition-all duration-150
+         hover:opacity-80 active:scale-95 cursor-pointer;
+}
+
+/* -------- Muted Destructive Card for Signed-In Section -------- */
+.card-danger {
+  @apply bg-surface0 border border-red/40;
+  /* matches dashboard accents better than pure red block */
+}
+
+/* -------- Horizontal Rule / Divider -------- */
+.divider {
+  @apply my-4 border-t border-surface2;
 }

@@ -1,7 +1,9 @@
-/* src/styles/main.css */
+/* ===========================================================
+   Main CSS — imports Catppuccin Mocha theme + UI helpers
+=========================================================== */
 
-/* Your Catppuccin Mocha theme */
+/* Import Catppuccin Mocha theme */
 @import './styles/catppuccin-mocha.css';
 
-/* Your UI helpers / overrides */
+/* Import UI helpers / overrides */
 @import './styles/ui-base.css';
